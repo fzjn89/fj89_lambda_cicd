@@ -6,7 +6,8 @@ on: # when we trigger a PUSH in MAIN branch in the LAMBDA folder it will trigger
       - main
     paths:
       - 'lambda/'
-# below code is for the conditions met for the above mentioned logic
+
+      # below code is for the conditions met for the above mentioned logic
 jobs:
   deploy-lambda: #name of our JOB
     runs-on: ubuntu-latest #sets or specifies the runner machine
