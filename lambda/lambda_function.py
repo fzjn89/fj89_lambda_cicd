@@ -3,5 +3,5 @@ import json
 def lambda_handler(event. context) :
     return {
         'statusCode':200,
-        'body': json.dumps('Hello from our CICD github actions wofkflow vscode')
+        'body': json.dumps('Hello updated lambda rom vscode ')
     }
