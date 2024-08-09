@@ -1,0 +1,47 @@
+name: Validate CloudFormation on Push Request
+
+on:
+  pull_request:
+    Paths:
+        - 'cloudformation/**'
+
+permissions:
+    pull_requests: write
+    contents: read
+    
+jobs:
+   validate_cfn:
+        runs-on: ubuntu
+        steps:
+           - uses: actions/checkout@v2
+           
+           - name: Configure AWS credentials
+             uses: aws-actions/configure-aws-credentials@v1  
+             with:
+                aws-access-key-id: ${{ secrets.FJ89_AWS_PUB_ACCESS_KEY_ID }}
+                aws-secret-access-key: ${{ secrets.FJ89_AWS_PRIV_ACCESS_KEY_ID }}
+                aws-region: ap-southeast-1
+
+           - name: Validate CloudF=formation template
+             run: |
+                aws cloudformation validate-template --template-body file://cloudformation/s3-bucket.yml
+                
+           - name: Deploy our stack
+             run: | 
+                stack_name= "pr-test-stack-${{github.event.pull_request.number}}"
+                aws cloudformation create-stack --stack-name --template-body file://cloudformation/s3-bucket.yml --parameters ParameterKey=Environment,ParameterValue=test
+
+           - name: Comment on the PR
+             uses: actions/github-script@v6
+             with:
+                github-token: ${{secrets.GITHUB_TOKEN}} 
+                script: |
+                    github.rest.issues.createComment({
+                     issue_number: context.issue.number,
+                     owner: context.repo.owner,
+                     repo: context.repo.repo,
+                     body: 'Cloudformation test stack deployed. Stack name: pr-test-stack-${{github.event.pull_request.number}}'
+                    })       
+
+
+
